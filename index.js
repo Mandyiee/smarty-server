@@ -3,7 +3,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import cors from 'cors';
 import http from 'http';
 
-const PORT = 8080;
+const PORT = 8000;
 const app = express();
 const server = http.createServer(app);
 
@@ -15,6 +15,9 @@ app.use(cors({
 
 app.use(express.json());
 
+app.get("/", (req, res) => {
+    res.send("Hello")
+})
 const wss = new WebSocketServer({ server });
 let webClients = new Set();
 
@@ -40,7 +43,8 @@ wss.on("connection", (socket) => {
             
             // Only send to other clients
             webClients.forEach(client => {
-                if (client.id !== socket.id && client.readyState === WebSocket.OPEN) {
+                if (client !== socket && client.readyState === WebSocket.OPEN) {
+                    console.log(`Sending message to client ${client.id}`);
                     client.send(JSON.stringify(parsedData));
                 }
             });
